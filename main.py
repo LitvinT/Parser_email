@@ -1,6 +1,7 @@
 import imaplib
 import email
 import chardet
+import re
 
 imap = imaplib.IMAP4_SSL("imap.yandex.ru")
 imap.login("okd.invoice@yandex.by", "nufssuttjtwiquay")
@@ -20,7 +21,13 @@ for num in data[0].split():
     encoding = chardet.detect(raw)['encoding']
     text = raw.decode(encoding)
 
-    print("Текст:\n", text)
+    # Используйте регулярное выражение для извлечения нужных строк
+    pattern = r'Зачисление \d+\.\d{2} BYN \d{2}/\d{2}/\d{2} \d{2}:\d{2} "Принятые платежи согласно реестру" счет [A-Z\d]+'
+    matches = re.findall(pattern, text)
+
+    for match in matches:
+        print(match)
 
 imap.close()
 imap.logout()
+
