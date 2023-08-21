@@ -1,9 +1,9 @@
 import imaplib
 import email
-import chardet
 import time
-from bs4 import BeautifulSoup
 
+import chardet
+from bs4 import BeautifulSoup
 
 # Функция для извлечения данных из писем и их сохранения в файл и вывода на экран
 def process_emails():
@@ -16,11 +16,11 @@ def process_emails():
     email_uids = data[0].split()
 
     # Открытие файла для записи данных
-    with open("parsed_emails4.txt", "a", encoding="utf-8") as output_file:
+    with open("parsed_emails5.txt", "a", encoding="utf-8") as output_file:
         # Загрузка уже обработанных записей из файла
         processed_data = set()
         try:
-            with open("parsed_emails4.txt", "r", encoding="utf-8") as existing_data_file:
+            with open("parsed_emails5.txt", "r", encoding="utf-8") as existing_data_file:
                 processed_data = set(existing_data_file.readlines())
         except FileNotFoundError:
             pass
@@ -36,7 +36,7 @@ def process_emails():
                 raw = msg.get_payload(decode=True)
 
             encoding = chardet.detect(raw)['encoding']
-            text = raw.decode(encoding)
+            text = raw.decode(encoding, 'ignore')  # Добавляем 'ignore' для игнорирования некорректных символов
 
             # Используем BeautifulSoup для парсинга HTML-текста и извлечения данных из тегов <pre>
             soup = BeautifulSoup(text, 'html.parser')
@@ -52,7 +52,6 @@ def process_emails():
 
     imap.close()
     imap.logout()
-
 
 # Главный цикл
 while True:
