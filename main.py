@@ -1,22 +1,26 @@
 import imaplib
 import email
-import time
+import chardet
 
-mail = imaplib.IMAP4_SSL("imap.mail.ru")
-mail.login("login", "password")
-mail.select("INBOX")
+imap = imaplib.IMAP4_SSL("imap.yandex.ru")
+imap.login("okd.invoice@yandex.by", "nufssuttjtwiquay")
+imap.select("INBOX")
 
-while True:
-  result, data = mail.uid('search', None, "ALL") # получаем UID новых писем
-  email_uids = data[0].split()
-  for uid in email_uids:
-    result, data = mail.uid('fetch', uid, '(RFC822)') # получаем письмо
-    raw_email = data[0][1]
-    msg = email.message_from_bytes(raw_email)
+result, data = imap.search(None, "ALL")
 
-    print("Новое письмо:")
-    print(msg["Subject"])
-    print(msg["From"])
-    print(msg.get_payload())
+for num in data[0].split():
+    result, data = imap.fetch(num, "(RFC822)")
+    msg = email.message_from_bytes(data[0][1])
 
-  time.sleep(60) # пауза 60 секунд до следующей проверки
+    if msg.is_multipart():
+        raw = msg.get_payload(0).get_payload(decode=True)
+    else:
+        raw = msg.get_payload(decode=True)
+
+    encoding = chardet.detect(raw)['encoding']
+    text = raw.decode(encoding)
+
+    print("Текст:\n", text)
+
+imap.close()
+imap.logout()
