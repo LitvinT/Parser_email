@@ -1,12 +1,11 @@
 import imaplib
 import email
+import re
 import time
-
-import chardet
-from bs4 import BeautifulSoup
+import csv
 
 # Функция для извлечения данных из писем и их сохранения в файл и вывода на экран
-def process_emails():
+def process_emails_and_convert_to_csv():
     imap = imaplib.IMAP4_SSL("imap.yandex.ru")
     imap.login("okd.invoice@yandex.by", "nufssuttjtwiquay")
     imap.select("INBOX")
@@ -15,45 +14,33 @@ def process_emails():
     result, data = imap.search(None, "ALL")
     email_uids = data[0].split()
 
-    # Открытие файла для записи данных
-    with open("parsed_emails5.txt", "a", encoding="utf-8") as output_file:
-        # Загрузка уже обработанных записей из файла
-        processed_data = set()
-        try:
-            with open("parsed_emails5.txt", "r", encoding="utf-8") as existing_data_file:
-                processed_data = set(existing_data_file.readlines())
-        except FileNotFoundError:
-            pass
+    # Открытие файла для записи данных в формате CSV
+    with open("parsed_emails.csv", "w", newline='', encoding="utf-8") as csv_output_file:
+        csv_writer = csv.writer(csv_output_file)
 
-        # Итерация по письмам
-        for email_uid in email_uids:
-            result, data = imap.fetch(email_uid, "(RFC822)")
-            msg = email.message_from_bytes(data[0][1])
+        # Заголовок CSV файла
+        csv_writer.writerow(["Сумма", "Дата", "Время", "Описание", "Счет"])
 
-            if msg.is_multipart():
-                raw = msg.get_payload(0).get_payload(decode=True)
-            else:
-                raw = msg.get_payload(decode=True)
+        # Открытие и чтение данных из текстового файла
+        with open("parsed_emails6.txt", "r", encoding="utf-8") as txt_input_file:
+            for line in txt_input_file:
+                # Извлекаем данные с помощью регулярного выражения
+                pattern = r'Зачисление\s+(\d+\.\d{2})\s+BYN\s+(\d{2}/\d{2}/\d{2})\s+(\d{2}:\d{2})\s+"([^"]+)"\s+счет\s+([A-Z\d]+)'
+                match = re.search(pattern, line)
+                if match:
+                    amount = match.group(1)
+                    date = match.group(2)
+                    time = match.group(3)
+                    description = match.group(4)
+                    account = match.group(5)
 
-            encoding = chardet.detect(raw)['encoding']
-            text = raw.decode(encoding, 'ignore')  # Добавляем 'ignore' для игнорирования некорректных символов
-
-            # Используем BeautifulSoup для парсинга HTML-текста и извлечения данных из тегов <pre>
-            soup = BeautifulSoup(text, 'html.parser')
-            pre_tags = soup.find_all('pre')
-
-            for pre_tag in pre_tags:
-                pre_text = pre_tag.get_text().strip()
-                data_to_save = f"{pre_text}\n"
-                if data_to_save not in processed_data:
-                    output_file.write(data_to_save)
-                    print(data_to_save)
-                    processed_data.add(data_to_save)
+                    # Записываем данные в CSV файл
+                    csv_writer.writerow([amount, date, time, description, account])
 
     imap.close()
     imap.logout()
 
 # Главный цикл
 while True:
-    process_emails()  # Обработка существующих и новых писем
+    process_emails_and_convert_to_csv()  # Обработка существующих и новых писем и конвертация в CSV
     time.sleep(60)  # Пауза в 60 секунд перед следующей проверкой
