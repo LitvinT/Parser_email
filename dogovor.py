@@ -36,7 +36,7 @@ def process_emails_and_convert_to_csv():
                     account = match.group(5)
 
                     # Поиск чисел от 4 до 9 цифр, исключая "2022" и "2023"
-                    numbers_pattern = r'\b(?!(?:2022|2023)\b)\d{4,9}\b'
+                    numbers_pattern = r'\b(?!(?:2022|2023|00000)\b)\d{4,6}(?![/])\b'
                     numbers_matches = re.findall(numbers_pattern, description)
 
                     # Если найдено хотя бы одно число, записываем первое в колонку "Договор", иначе пустую строку
