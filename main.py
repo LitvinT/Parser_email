@@ -4,7 +4,10 @@ import re
 import time
 
 # Функция для извлечения данных из писем и их сохранения в файл и вывода на экран
+
+
 def process_emails():
+    print("Функция 1 вызвана")
     imap = imaplib.IMAP4_SSL("imap.yandex.ru")
     imap.login("okd.invoice@yandex.by", "nufssuttjtwiquay")
     imap.select("INBOX")
@@ -49,7 +52,8 @@ def process_emails():
     imap.close()
     imap.logout()
 
-# Главный цикл
-while True:
-    process_emails()  # Обработка существующих и новых писем
-    time.sleep(60)  # Пауза в 60 секунд перед следующей проверкой
+
+process_emails()  # Вызов функции
+
+
+

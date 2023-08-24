@@ -6,6 +6,7 @@ import csv
 
 # Функция для извлечения данных из писем и их сохранения в файл и вывода на экран
 def process_emails_and_convert_to_csv():
+    print("Функция 2 вызвана")
     imap = imaplib.IMAP4_SSL("imap.yandex.ru")
     imap.login("okd.invoice@yandex.by", "nufssuttjtwiquay")
     imap.select("INBOX")
@@ -47,7 +48,6 @@ def process_emails_and_convert_to_csv():
     imap.close()
     imap.logout()
 
-# Главный цикл
-while True:
-    process_emails_and_convert_to_csv()  # Обработка существующих и новых писем и конвертация в CSV
-    time.sleep(60)  # Пауза в 60 секунд перед следующей проверкой
+
+process_emails_and_convert_to_csv()  # Вызов функции
+

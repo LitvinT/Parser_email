@@ -8,6 +8,7 @@ url = "https://crm.okna-ori.by/rest/1/5rqi5834zubf0jjj/crm.item.add?entityTypeId
 
 # Функция для обработки данных и добавления сделок
 def process_and_add_deals():
+    print("Функция 3 вызвана")
     # Загрузка информации о добавленных сделках из файла (если существует)
     try:
         with open("added_deals.json", "r") as added_deals_file:
@@ -55,7 +56,6 @@ def process_and_add_deals():
     with open("added_deals.json", "w") as added_deals_file:
         json.dump(list(added_deals), added_deals_file)
 
-# Бесконечный цикл для постоянной проверки и добавления сделок
-while True:
-    process_and_add_deals()
-    time.sleep(60)  # Пауза в 60 секунд перед следующей проверкой
+
+process_and_add_deals()#Вызов функции
+
